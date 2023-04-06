@@ -1,19 +1,25 @@
 import { Server, Socket } from "socket.io";
-import userService, { User } from "./user.service";
+import userService from "./user.service";
 import messageService, { Message } from "./message.service";
+import UserModel from "../models/user.model";
 
 const socketService = (io: Server) => {
+  let currentUsers: any[] = [];
   io.on("connection", async (socket: Socket) => {
     socket.join("wow");
     let messages;
     let users;
-    socket.on("create_user", async (user: User) => {
+    socket.on("create_user", async (user) => {
       socket.join(user.room);
-      await userService.create({
+      const newUser = new UserModel({
         name: user.name,
-        socketId: socket.id,
         room: user.room,
       });
+      await newUser
+        .save()
+        .then((user) =>
+          currentUsers.push({ userId: user._id, socketId: socket.id })
+        );
       messages = await messageService.getAll();
       users = await userService.getAll();
       socket.emit("receive_data", { messages: messages, users: users });
@@ -31,8 +37,13 @@ const socketService = (io: Server) => {
       socket.emit("get_messages", updatedMsgs);
     });
     socket.on("disconnect", async () => {
-      await userService.deleteBySocketId(socket.id);
-      socket.to("wow").emit("delete_user", socket.id);
+      const currentUser = currentUsers.find(
+        (user) => user.socketId === socket.id
+      );
+      if (currentUser) {
+        await userService.deleteById(currentUser.userId);
+        socket.to("wow").emit("delete_user", currentUser.userId);
+      }
     });
   });
 };

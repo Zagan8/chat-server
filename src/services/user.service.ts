@@ -1,11 +1,11 @@
 import UserModel from "../models/user.model";
+import mongoose, { Mongoose, ObjectId } from "mongoose";
 
 export interface User {
-  name: string;
+  id?: string;
+  name?: string;
 
-  socketId: string;
-
-  room: string;
+  room?: string;
 }
 const userService = {
   create: async (user: User) => {
@@ -24,13 +24,11 @@ const userService = {
       console.error(`filed bring all users with error :${e}`);
     }
   },
-  deleteBySocketId: async (socketId: string) => {
+  deleteById: async (id: mongoose.Types.ObjectId) => {
     try {
-      await UserModel.deleteOne({ socketId: socketId });
+      await UserModel.deleteOne({ _id: id });
     } catch (e) {
-      console.error(
-        `failed to delete user with socketId:${socketId} with error ${e}`
-      );
+      console.error(`failed to delete user with id:${id} with error ${e}`);
     }
   },
 };
