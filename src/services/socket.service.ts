@@ -1,32 +1,44 @@
 import { Server, Socket } from "socket.io";
-import messageService, { Message } from "./message.service";
 
-const socketService = (io: Server) => {
-  let activeUsers: { [name: string]: string } = {};
-  io.on("connection", async (socket: Socket) => {
-    socket.join("wow");
+class SocketService {
+  private _io: Server;
+  private activeUsers: { [name: string]: string } = {};
 
-    socket.on("log_in", (name: string) => {
-      activeUsers[socket.id] = name;
-      sendActiveUsers();
+  init(io: Server) {
+    this._io = io;
+
+    this.attachEvents();
+  }
+
+  sendMessage(data: any) {
+    this._io.emit("send_message", data);
+  }
+
+  sendActiveUsers() {
+    const users = Object.values(this.activeUsers);
+
+    this._io.to("wow").emit("active_users", users);
+  }
+
+  attachEvents() {
+    this._io.on("connection", async (socket: Socket) => {
+      socket.join("wow");
+
+      socket.on("log_in", (name: string) => {
+        this.activeUsers[socket.id] = name;
+
+        this.sendActiveUsers();
+      });
+
+      socket.on("disconnect", () => {
+        delete this.activeUsers[socket.id];
+
+        this.sendActiveUsers();
+      });
     });
+  }
+}
 
-    const sendActiveUsers = () => {
-      const users = Object.values(activeUsers);
-      io.to("wow").emit("active_users", users);
-      console.log(users);
-    };
-
-    socket.on("send_message", async (message: Message) => {
-      const updatedMsgs = await messageService.getAll();
-      socket.to("wow").emit("get_messages", updatedMsgs);
-    });
-
-    socket.on("disconnect", () => {
-      delete activeUsers[socket.id];
-      sendActiveUsers();
-    });
-  });
-};
+const socketService = new SocketService();
 
 export default socketService;

@@ -10,11 +10,12 @@ import bodyParser from "body-parser";
 const bootstrap = async () => {
   const app = express();
 
+  const server = http.createServer(app);
+
   app.use(bodyParser.json());
 
-  const server = await http.createServer(app);
-
   await connectToMongoDb().catch(console.error);
+
   app.use(cors());
 
   const wsServer = await new Server(server, {
@@ -25,9 +26,11 @@ const bootstrap = async () => {
   });
 
   app.use(messageRouter);
-  socketService(wsServer);
+
+  socketService.init(wsServer);
 
   const port = 8000;
+
   server.listen(port, () => {
     console.log(`WebSocket server is running on port ${port}`);
   });

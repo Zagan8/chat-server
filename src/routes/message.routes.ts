@@ -3,6 +3,7 @@ import {
   createMessage,
   getAllMessages,
 } from "../controllers/message.controller";
+
 const messageRouter = express.Router();
 const routePrefix = "/message";
 

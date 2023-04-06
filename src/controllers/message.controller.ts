@@ -1,5 +1,6 @@
 import { Response, Request } from "express";
 import messageService from "../services/message.service";
+import socketService from "../services/socket.service";
 
 async function getAllMessages(req: Request, res: Response) {
   try {
@@ -12,10 +13,13 @@ async function getAllMessages(req: Request, res: Response) {
 async function createMessage(req: Request, res: Response) {
   try {
     const newMessage = await messageService.create(req.body.message);
-    console.log(req.body);
+
+    socketService.sendMessage(newMessage?.toJSON());
+
     res.send(newMessage);
   } catch (e) {
     console.error(`failed to create message with error ${e}`);
+    res.status(400);
   }
 }
 
