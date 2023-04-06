@@ -7,7 +7,8 @@ async function getAllMessages(req: Request, res: Response) {
     const messages = await messageService.getAll();
     res.send(messages);
   } catch (e) {
-    console.error(`failed to get all messages with error ${e}`);
+    console.log(`failed to get all messages with error ${e}`);
+    res.status(400);
   }
 }
 async function createMessage(req: Request, res: Response) {
