@@ -15,7 +15,7 @@ async function createMessage(req: Request, res: Response) {
   try {
     const newMessage = await messageService.create(req.body.message);
 
-    socketService.sendMessage(newMessage?.toJSON());
+    socketService.sendMessage(newMessage.toJSON());
 
     res.send(newMessage);
   } catch (e) {

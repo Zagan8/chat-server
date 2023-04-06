@@ -7,22 +7,14 @@ export interface Message {
 
 const messageService = {
   getAll: async () => {
-    try {
-      const messages = await MessageModel.find();
+    const messages = await MessageModel.find();
 
-      return messages;
-    } catch (e) {
-      console.error(`failed to find all messages with error ${e}`);
-    }
+    return messages;
   },
   create: async (messageData: Message) => {
-    try {
-      const message = await MessageModel.create(messageData);
+    const message = await MessageModel.create(messageData);
 
-      return message;
-    } catch (e) {
-      console.error(`failed to create message ${messageData}, with error ${e}`);
-    }
+    return message;
   },
 };
 
