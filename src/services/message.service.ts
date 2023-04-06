@@ -16,7 +16,7 @@ const messageService = {
   },
   create: async (messageData: Message) => {
     try {
-      const message = await MessageModel.create([messageData]);
+      const message = await MessageModel.create(messageData);
       return message;
     } catch (e) {
       console.error(`failed to create message ${messageData}, with error ${e}`);

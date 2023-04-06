@@ -1,5 +1,4 @@
 import UserModel from "../models/user.model";
-import userModel from "../models/user.model";
 
 export interface User {
   name: string;
@@ -11,7 +10,7 @@ export interface User {
 const userService = {
   create: async (user: User) => {
     try {
-      const newUser = await UserModel.create([user]);
+      const newUser = await UserModel.create(user);
       return newUser;
     } catch (e) {
       console.error(`failed to create user ${user} with error ${e}`);
@@ -27,7 +26,7 @@ const userService = {
   },
   deleteBySocketId: async (socketId: string) => {
     try {
-      await userModel.deleteOne({ socketId: socketId });
+      await UserModel.deleteOne({ socketId: socketId });
     } catch (e) {
       console.error(
         `failed to delete user with socketId:${socketId} with error ${e}`
